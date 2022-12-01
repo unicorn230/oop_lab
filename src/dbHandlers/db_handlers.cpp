@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "../classes/classes.h"
-
+#include <ctime>
 
 int read_map_number(){
     int a;
@@ -87,7 +87,6 @@ Parcel* read_parcels(){
             }
             l++;
         }
-        l++;
         int s=0;
         string str="";
         while(s<2){
@@ -100,6 +99,7 @@ Parcel* read_parcels(){
             }
             l++;
         }
+        cout<<digits[2]<<" "<<digits[3]<<" "<<digits[4]<<endl;
         Date sending_date(digits[2], digits[3], digits[4]);
         Date receiving_date(digits[5], digits[6], digits[7]);
         Parcel par(digits[0],digits[1], sending_date, receiving_date, digits[8], digits[9], digits[10], digits[11], (bool) digits[12], users[0], users[1]);
@@ -110,10 +110,11 @@ Parcel* read_parcels(){
 
 }
 
-void add_parcel(int weight, int volume, Date sending_date, Date receiving_date, int price, int origin, int destination, bool premium, string sender, string recepient) {
+void save_parcel(int weight, int volume, Date sending_date,  Date receiving_date, int price, int origin, int destination, bool premium, string sender, string recepient) {
     string data="";
     ifstream infile;
     infile.open("../src/db/parcels_history_db.txt", ios::in);
+
 
     int n;
     string part;

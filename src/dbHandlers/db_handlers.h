@@ -8,4 +8,4 @@ connection* read_map();
 
 Parcel* read_parcels();
 
-void add_parcel(int weight, int volume, Date sending_date, Date receiving_date, int price, int origin, int destination, bool premium, string sender, string recepient);
+void save_parcel(int weight, int volume, Date sendind_date, Date receiving_date, int price, int origin, int destination, bool premium, string sender, string recepient);

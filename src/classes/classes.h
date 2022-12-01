@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -38,6 +39,7 @@ struct path{
     int origin;
     int destination;
     Connections type_of_connection;
+
 };
 
 
@@ -85,13 +87,22 @@ public:
 class Parameters{
     connection speed;
     connection cost;
+    connection premium_speed_coef;
+    connection premium_cost_coef;
+    double volume_cost_coef;
+    double weight_cost_coef;
 public:
     Parameters(){
-        speed = connection{1,2,3,4};
-        cost = connection{1,2,3,4};
+        volume_cost_coef=0.1;
+        weight_cost_coef=0.1;
+        speed = connection{1,4,3,2};
+        cost = connection{4,2,1,3};
+        premium_speed_coef = connection{1,1,1,1};
+        premium_cost_coef = connection{0.7,0.8,1,1};
     }
-    int get_speed(int type);
-    int get_cost(int type);
+    Parameters(connection speed, connection cost, connection premiun_speed, connection premium_cost, double volume_cost, double weight_cost);
+    double get_speed(int type, bool premium);
+    double get_cost(int type, bool premium);
     void set_speed(connection speed){this->speed=speed;}
     void set_cost(connection cost){this->cost=cost;}
 
@@ -108,10 +119,11 @@ public:
     Map();
     int get_number_of_deps(){return number_of_deps;}
     connection *get_map(){return map;}
+    double get_specific_weight(int i, int j, int type);
     void set_number_of_deps(int n){this->number_of_deps =n;}
     void set_mpa(connection *map){this->map=map;}
-    path * find_fastest_path(int o, int d, Parameters pars);
-    path * find_cheapest_path(int o, int d, Parameters pars);
+    vector <path> find_fastest_path(int o, int d, Parameters pars, bool premium);
+    vector <path> find_cheapest_path(int o, int d, Parameters pars, bool premium);
 };
 
 class History{
@@ -127,12 +139,16 @@ public:
 };
 class Calculator{
     History history;
+    Map map;
+    Parameters pars;
 public:
     Calculator();
+    Calculator(connection speed, connection cost, connection premiun_speed, connection premium_cost, double volume_cost_coef, double weight_cost_coef);
     History get_history(){return history;}
     void set_history(History history){this->history = history;}
-    void add_parcel(int weight, int volume, Date sending_date, Date receiving_date, int price, int origin, int destination, bool premium, string sender, string recepient);
-    void list_parcels();
-    void find_path(int type, Parcel parcel);
+    void add_parcel(int weight, int volume,int origin, int destination, bool premium, string sender, string recepient, bool path_type);
+    vector <path> find_path(int type, int origin, int destination, bool premium);
+    double calculate_cost(vector<path> path, bool premium);
+    double calculate_time(vector<path> path, bool premium);
 };
 

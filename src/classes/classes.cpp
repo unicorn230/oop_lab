@@ -2,37 +2,93 @@
 #include "../dbHandlers/db_handlers.h"
 #include <iostream>
 #include <cstring>
+#include <vector>
+#include <math.h>
+#include <ctime>
+
 
 using namespace std;
 
-int Parameters::get_cost(int type){
-    switch(type){
-        case 0: return cost.plane;
-        case 1: return cost.ship;
-        case 2: return cost.train;
-        case 3: return cost.car;
-        default: return speed.train;
+Parameters::Parameters(connection speed, connection cost, connection premiun_speed, connection premium_cost, double volume_cost, double weight_cost) {
+    this->speed=speed;
+    this->cost=cost;
+    this->premium_speed_coef=premiun_speed;
+    this->premium_cost_coef=premium_cost;
+    this->volume_cost_coef=volume_cost;
+    this->weight_cost_coef=weight_cost;
+}
+
+double Parameters::get_cost(int type, bool premium){
+    if(premium) {
+        switch (type) {
+            case 0: return cost.plane * this->premium_cost_coef.plane * this->volume_cost_coef * this->weight_cost_coef;
+            case 1: return cost.ship * this->premium_cost_coef.ship * this->volume_cost_coef * this->weight_cost_coef;
+            case 2: return cost.train * this->premium_cost_coef.train * this->volume_cost_coef * this->weight_cost_coef;
+            case 3: return cost.car * this->premium_cost_coef.car * this->volume_cost_coef * this->weight_cost_coef;
+            default: return 0;
+        }
+    }else{
+        switch (type) {
+            case 0:return cost.plane * this->volume_cost_coef * this->weight_cost_coef;
+            case 1:return cost.ship * this->volume_cost_coef * this->weight_cost_coef;
+            case 2:return cost.train * this->volume_cost_coef * this->weight_cost_coef;
+            case 3:return cost.car* this->volume_cost_coef * this->weight_cost_coef;
+            default:return 0;
+        }
     }
 }
 
-int Parameters::get_speed(int type){
-    switch(type){
-        case 0: return speed.plane;
-        case 1: return speed.ship;
-        case 2: return speed.train;
-        case 3: return speed.car;
-        default: return speed.train;
+double Parameters::get_speed(int type, bool premium){
+    if(premium){
+        switch(type){
+            case 0: return speed.plane*this->premium_speed_coef.plane;
+            case 1: return speed.ship*this->premium_speed_coef.ship;
+            case 2: return speed.train*this->premium_speed_coef.train;
+            case 3: return speed.car*this->premium_speed_coef.car;
+            default: return 0;
+        }
+    }else{
+        switch(type){
+            case 0: return speed.plane;
+            case 1: return speed.ship;
+            case 2: return speed.train;
+            case 3: return speed.car;
+            default: return 0;
+        }
     }
 }
+
+Date::Date(int d, int m, int y) {
+    this->day =d;
+    this->month = m;
+    this->year = y;
+}
+
+Date::Date(){day=0;month=0;year=0;}
 
 Map::Map(){
     number_of_deps = read_map_number();
     map=read_map();
 }
 
-path *Map::find_fastest_path(int origin, int destination, Parameters pars) {
+double Map::get_specific_weight(int i, int j, int type) {
+    switch(type){
+        case 0: return map[i+j].plane;
+        case 1: return map[i+j].ship;
+        case 2: return map[i+j].train;
+        case 3: return map[i+j].car;
+        default: return 0;
+    }
+}
 
-    double graph[number_of_deps][number_of_deps], d[number_of_deps], temp, minimun;
+vector <path> Map::find_fastest_path(int origin, int destination, Parameters pars, bool premium) {
+
+    double **graph= new double*[number_of_deps];
+    for(int i = 0; i < number_of_deps; ++i)
+        graph[i] = new double[number_of_deps];
+
+    double d[number_of_deps];
+    double temp, minimun;
     int v[number_of_deps], min_index, begin_index=origin-1;
     Connections con_graph[number_of_deps][number_of_deps];
 
@@ -40,26 +96,26 @@ path *Map::find_fastest_path(int origin, int destination, Parameters pars) {
     for(int i=0; i<number_of_deps; i++){
         for(int j=0; j<number_of_deps; j++){
 
-            if(map[counter].car/pars.get_speed(CAR) <= map[counter].plane/pars.get_speed(PLANE) &
-               map[counter].car/pars.get_speed(CAR) <= map[counter].ship/pars.get_speed(SHIP) &
-               map[counter].car/pars.get_speed(CAR) <= map[counter].train/pars.get_speed(TRAIN) &
-               map[counter].car/pars.get_speed(CAR) !=0){
-                graph[i][j]=map[counter].car/pars.get_speed(CAR);
+            if(map[counter].car/pars.get_speed(CAR, premium) <= map[counter].plane/pars.get_speed(PLANE, premium) &
+               map[counter].car/pars.get_speed(CAR, premium) <= map[counter].ship/pars.get_speed(SHIP, premium) &
+               map[counter].car/pars.get_speed(CAR, premium) <= map[counter].train/pars.get_speed(TRAIN, premium) &
+               map[counter].car/pars.get_speed(CAR, premium) !=0){
+                graph[i][j]=map[counter].car/pars.get_speed(CAR, premium);
                 con_graph[i][j]=CAR;
-            }else if(map[counter].plane/pars.get_speed(PLANE) <= map[counter].car/pars.get_speed(CAR) &
-                     map[counter].plane/pars.get_speed(PLANE) <= map[counter].ship/pars.get_speed(SHIP) &
-                     map[counter].plane/pars.get_speed(PLANE) <= map[counter].train/pars.get_speed(TRAIN) &
-                     map[counter].plane/pars.get_speed(PLANE) !=0){
-                graph[i][j]=map[counter].plane/pars.get_speed(PLANE);
+            }else if(map[counter].plane/pars.get_speed(PLANE, premium) <= map[counter].car/pars.get_speed(CAR, premium) &
+                     map[counter].plane/pars.get_speed(PLANE, premium) <= map[counter].ship/pars.get_speed(SHIP, premium) &
+                     map[counter].plane/pars.get_speed(PLANE, premium) <= map[counter].train/pars.get_speed(TRAIN, premium) &
+                     map[counter].plane/pars.get_speed(PLANE, premium) !=0){
+                graph[i][j]=map[counter].plane/pars.get_speed(PLANE, premium);
                 con_graph[i][j]=PLANE;
-            }else if(map[counter].ship/pars.get_speed(SHIP) <= map[counter].car/pars.get_speed(CAR) &
-                     map[counter].ship/pars.get_speed(SHIP) <= map[counter].plane/pars.get_speed(PLANE) &
-                     map[counter].ship/pars.get_speed(SHIP) <= map[counter].train/pars.get_speed(TRAIN) &
-                     map[counter].ship/pars.get_speed(SHIP) !=0){
-                graph[i][j]=map[counter].ship/pars.get_speed(SHIP);
+            }else if(map[counter].ship/pars.get_speed(SHIP, premium) <= map[counter].car/pars.get_speed(CAR, premium) &
+                     map[counter].ship/pars.get_speed(SHIP, premium) <= map[counter].plane/pars.get_speed(PLANE, premium) &
+                     map[counter].ship/pars.get_speed(SHIP, premium) <= map[counter].train/pars.get_speed(TRAIN, premium) &
+                     map[counter].ship/pars.get_speed(SHIP, premium) !=0){
+                graph[i][j]=map[counter].ship/pars.get_speed(SHIP, premium);
                 con_graph[i][j]=SHIP;
-            }else if(graph[i][j]=map[counter].train/pars.get_speed(TRAIN) !=0){
-                graph[i][j]=map[counter].train/pars.get_speed(TRAIN);
+            }else if(graph[i][j]=map[counter].train/pars.get_speed(TRAIN, premium) !=0){
+                graph[i][j]=map[counter].train/pars.get_speed(TRAIN, premium);
                 con_graph[i][j]=TRAIN;
             }else{
                 graph[i][j]=1000000000;
@@ -123,18 +179,29 @@ path *Map::find_fastest_path(int origin, int destination, Parameters pars) {
         }
     }
 
-    path *shortest= new path[k-1];
+    vector<path> fastest;
 
     for (int i = k - 1; i >= 0; i--) {
-        if (i == k - 1) shortest[0] = {0, ver[k - 1] - 1, con_graph[0][ver[k - 1] - 1]};
-        else shortest[k - 1 - i] = {ver[k - 1 - i] - 1, con_graph[0][ver[k - 1] - 1]};
+        if (i == k - 1) fastest.push_back({origin, ver[k - 1] - 1, con_graph[0][ver[k - 1] - 1]});
+        else fastest.push_back({ver[k - 1 - i] - 1, con_graph[0][ver[k - 1] - 1]});
     }
-    return shortest;
+
+    for(int i = 0; i < number_of_deps; ++i) {
+        delete [] graph[i];
+    }
+    delete [] graph;
+
+    return fastest;
 }
 
-path *Map::find_cheapest_path(int origin, int destination, Parameters pars) {
+vector <path> Map::find_cheapest_path(int origin, int destination, Parameters pars, bool premium) {
 
-    int graph[number_of_deps][number_of_deps], d[number_of_deps], temp, minimun;
+    double **graph= new double*[number_of_deps];
+    for(int i = 0; i < number_of_deps; ++i)
+        graph[i] = new double[number_of_deps];
+
+    double d[number_of_deps];
+    double temp, minimun;
     int v[number_of_deps], min_index, begin_index=origin-1;
     Connections con_graph[number_of_deps][number_of_deps];
 
@@ -142,26 +209,26 @@ path *Map::find_cheapest_path(int origin, int destination, Parameters pars) {
     for(int i=0; i<number_of_deps; i++){
         for(int j=0; j<number_of_deps; j++){
 
-            if(map[counter].car*pars.get_cost(CAR) <= map[counter].plane*pars.get_cost(PLANE) &
-               map[counter].car*pars.get_cost(CAR) <= map[counter].ship*pars.get_cost(SHIP) &
-               map[counter].car*pars.get_cost(CAR) <= map[counter].train*pars.get_cost(TRAIN)&
-               map[counter].car*pars.get_cost(CAR)!=0){
-                graph[i][j]=map[counter].car*pars.get_cost(CAR);
+            if(map[counter].car*pars.get_cost(CAR, premium) <= map[counter].plane*pars.get_cost(PLANE, premium) &
+               map[counter].car*pars.get_cost(CAR, premium) <= map[counter].ship*pars.get_cost(SHIP, premium) &
+               map[counter].car*pars.get_cost(CAR, premium) <= map[counter].train*pars.get_cost(TRAIN, premium)&
+               map[counter].car*pars.get_cost(CAR, premium)!=0){
+                graph[i][j]=map[counter].car*pars.get_cost(CAR, premium);
                 con_graph[i][j]=CAR;
-            }else if(map[counter].plane*pars.get_cost(PLANE) <= map[counter].car*pars.get_cost(CAR) &
-                     map[counter].plane*pars.get_cost(PLANE) <= map[counter].ship*pars.get_cost(SHIP) &
-                     map[counter].plane*pars.get_cost(PLANE) <= map[counter].train*pars.get_cost(TRAIN)&
-                     map[counter].plane*pars.get_cost(PLANE)!=0){
-                graph[i][j]=map[counter].plane*pars.get_cost(PLANE);
+            }else if(map[counter].plane*pars.get_cost(PLANE, premium) <= map[counter].car*pars.get_cost(CAR, premium) &
+                     map[counter].plane*pars.get_cost(PLANE, premium) <= map[counter].ship*pars.get_cost(SHIP, premium) &
+                     map[counter].plane*pars.get_cost(PLANE, premium) <= map[counter].train*pars.get_cost(TRAIN, premium)&
+                     map[counter].plane*pars.get_cost(PLANE, premium)!=0){
+                graph[i][j]=map[counter].plane*pars.get_cost(PLANE, premium);
                 con_graph[i][j]=PLANE;
-            }else if(map[counter].ship*pars.get_cost(SHIP) <= map[counter].car*pars.get_cost(CAR) &
-                     map[counter].ship*pars.get_cost(SHIP) <= map[counter].plane*pars.get_cost(PLANE) &
-                     map[counter].ship*pars.get_cost(SHIP) <= map[counter].train*pars.get_cost(TRAIN)&
-                     map[counter].ship*pars.get_cost(SHIP)!=0){
-                graph[i][j]=map[counter].ship*pars.get_cost(SHIP);
+            }else if(map[counter].ship*pars.get_cost(SHIP, premium) <= map[counter].car*pars.get_cost(CAR, premium) &
+                     map[counter].ship*pars.get_cost(SHIP, premium) <= map[counter].plane*pars.get_cost(PLANE, premium) &
+                     map[counter].ship*pars.get_cost(SHIP, premium) <= map[counter].train*pars.get_cost(TRAIN, premium)&
+                     map[counter].ship*pars.get_cost(SHIP, premium)!=0){
+                graph[i][j]=map[counter].ship*pars.get_cost(SHIP, premium);
                 con_graph[i][j]=SHIP;
-            }else if(map[counter].train*pars.get_cost(TRAIN)!=0){
-                graph[i][j]=map[counter].train*pars.get_cost(TRAIN);
+            }else if(map[counter].train*pars.get_cost(TRAIN, premium)!=0){
+                graph[i][j]=map[counter].train*pars.get_cost(TRAIN, premium);
                 con_graph[i][j]=TRAIN;
             }else {
                 graph[i][j]=1000000000;
@@ -170,13 +237,6 @@ path *Map::find_cheapest_path(int origin, int destination, Parameters pars) {
             counter++;
         }
     }
-
-//    for (int i = 0; i<number_of_deps; i++)
-//    {
-//        for (int j = 0; j<number_of_deps; j++)
-//            cout<<graph[i][j]<<" ";
-//        cout<<endl;
-//    }
 
     for (int i = 0; i<number_of_deps; i++)
     {
@@ -232,22 +292,23 @@ path *Map::find_cheapest_path(int origin, int destination, Parameters pars) {
         }
     }
 
-    path *cheapest= new path[k-1];
+    vector <path> cheapest;
 
     for (int i = k - 1; i >= 0; i--) {
-        if (i == k - 1) cheapest[0] = {0, ver[k - 1] - 1, con_graph[0][ver[k - 1] - 1]};
-        else cheapest[k - 1 - i] = {ver[k - 1 - i] - 1, con_graph[0][ver[k - 1] - 1]};
+        if (i == k - 1) cheapest.push_back({origin, ver[k - 1] - 1, con_graph[0][ver[k - 1] - 1]});
+        else cheapest.push_back({ver[k - 1 - i] - 1, con_graph[0][ver[k - 1] - 1]});
     }
+
+    for(int i = 0; i < number_of_deps; ++i) {
+        delete [] graph[i];
+    }
+    delete [] graph;
+
     return cheapest;
 
 }
-Date::Date(){day=0;month=0;year=0;}
 
-Date::Date(int d, int m, int y) {
-    this->day =d;
-    this->month = month;
-    this->year = year;
-}
+
 
 Parcel::Parcel(){
     this->weight = 0;
@@ -284,9 +345,50 @@ History::History() {
 
 Calculator::Calculator() {
     this->history = History();
+    this->map = Map();
+    this->pars = Parameters();
 }
 
-void Calculator::add_parcel(int weight, int volume, Date sending_date, Date receiving_date, int price, int origin, int destination, bool premium, string sender, string recepient) {
-    add_parcel(weight, volume, sending_date, receiving_date, price, origin, destination, premium, sender, recepient);
+
+Calculator::Calculator(connection speed, connection cost, connection premiun_speed, connection premium_cost, double volume_cost, double weight_cost) {
+    this->history = History();
+    this->map = Map();
+    this->pars= Parameters(speed, cost,premiun_speed, premium_cost, volume_cost, weight_cost);
+}
+
+void Calculator::add_parcel(int weight, int volume, int origin, int destination, bool premium, string sender, string recepient, bool path_type) {
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+
+    int days = ceil(calculate_time(find_path(path_type, origin, destination, premium), premium));
+    int price = ceil(calculate_cost(find_path(path_type, origin, destination, premium), premium));
+
+    save_parcel(weight, volume, Date{ltm->tm_mday, ltm->tm_mon, ltm->tm_year}, Date{(ltm->tm_mday+days)%30, (int)(ltm->tm_mon+floor(days/30)), ltm->tm_year}, price, origin, destination, premium, sender, recepient);
     history = History();
+}
+
+vector <path> Calculator::find_path(int type, int origin, int destination, bool premium){
+    if(type == 0) return this->map.find_fastest_path(origin, destination, this->pars, premium);
+    if(type == 1) return this->map.find_cheapest_path(origin, destination, this->pars, premium);
+}
+
+
+double Calculator::calculate_cost(vector<path> path, bool premium) {
+
+    double sum=0;
+    for(int i=0; i<path.size(); i++){
+        double path_weight = this->map.get_specific_weight(path[i].origin, path[i].destination, path[i].type_of_connection);
+        sum+=path_weight*this->pars.get_cost(path[i].type_of_connection, premium);
+    }
+    return sum;
+}
+
+double Calculator::calculate_time(vector<path> path, bool premium) {
+
+    double time=0;
+    for(int i=0; i<path.size(); i++){
+        double path_weight = this->map.get_specific_weight(path[i].origin, path[i].destination, path[i].type_of_connection);
+        time+=path_weight/this->pars.get_speed(path[i].type_of_connection, premium);
+    }
+    return time;
 }
