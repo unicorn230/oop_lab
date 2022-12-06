@@ -1,7 +1,10 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "../classes/classes.h"
+#pragma once
+#include "../../headers/Parcel.h"
+#include "../../headers/DTOs.h"
+
 #include <ctime>
 
 int read_map_number(){
@@ -99,7 +102,6 @@ Parcel* read_parcels(){
             }
             l++;
         }
-        cout<<digits[2]<<" "<<digits[3]<<" "<<digits[4]<<endl;
         Date sending_date(digits[2], digits[3], digits[4]);
         Date receiving_date(digits[5], digits[6], digits[7]);
         Parcel par(digits[0],digits[1], sending_date, receiving_date, digits[8], digits[9], digits[10], digits[11], (bool) digits[12], users[0], users[1]);

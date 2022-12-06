@@ -1,5 +1,7 @@
 #pragma once
-#include "../classes/classes.h"
+#include "../../headers/Parcel.h"
+#include "../../headers/DTOs.h"
+
 
 int read_map_number();
 int read_parcels_number();

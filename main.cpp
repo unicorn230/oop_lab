@@ -2,7 +2,7 @@
 #include <iostream>
 #include "./src/dbHandlers/db_handlers.h"
 #include <vector>
-#include "./src/classes/classes.h"
+#include "./headers/Calculator.h"
 
 using namespace std;
 
