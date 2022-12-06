@@ -14,6 +14,11 @@ enum Connections{
     CAR
 };
 
+enum type{
+    FAST,
+    CHEAP
+};
+
 struct path{
     int origin;
     int destination;

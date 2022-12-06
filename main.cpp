@@ -43,9 +43,9 @@ int main(){
 
     //знайдемо найшвидший та найдовший маршрути
     // найшвидший
-    vector <path> f=calc.find_path(0, 1,3, 1);
+    vector <path> f=calc.find_path(FAST, 1,3, 1);
     //найдешевший
-    vector <path> c=calc.find_path(1,3,2,0);
+    vector <path> c=calc.find_path(CHEAP,3,2,0);
 
     //виведемо один
     string connections_types[4]={"plane", "ship", "train", "car"};
@@ -56,7 +56,7 @@ int main(){
     cout<<calc.calculate_cost(f, 1);
 
     //додамо посилку
-    calc.add_parcel(250, 33,1,3,1,"Max", "John", 1);
+    calc.add_parcel(250, 33,1,3,1,"Max", "John", CHEAP);
 
     // виведемо посилки
     parcels = calc.get_history().get_parcels_history();

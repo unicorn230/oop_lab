@@ -24,18 +24,18 @@ Calculator::Calculator(connection speed, connection cost, connection premiun_spe
     this->pars= Parameters(speed, cost,premiun_speed, premium_cost, volume_cost, weight_cost);
 }
 
-void Calculator::add_parcel(int weight, int volume, int origin, int destination, bool premium, string sender, string recepient, bool path_type) {
+void Calculator::add_parcel(int weight, int volume, int origin, int destination, bool premium, string sender, string recepient, type type) {
     time_t now = time(0);
     tm *ltm = localtime(&now);
 
-    int days = ceil(calculate_time(find_path(path_type, origin, destination, premium), premium));
-    int price = ceil(calculate_cost(find_path(path_type, origin, destination, premium), premium));
+    int days = ceil(calculate_time(find_path(type, origin, destination, premium), premium));
+    int price = ceil(calculate_cost(find_path(type, origin, destination, premium), premium));
 
     save_parcel(weight, volume, Date{ltm->tm_mday, ltm->tm_mon, ltm->tm_year}, Date{(ltm->tm_mday+days)%30, (int)(ltm->tm_mon+floor(days/30)), ltm->tm_year}, price, origin, destination, premium, sender, recepient);
     history = History();
 }
 
-vector <path> Calculator::find_path(int type, int origin, int destination, bool premium){
+vector <path> Calculator::find_path(type type, int origin, int destination, bool premium){
     if(type == 0) return this->map.find_fastest_path(origin, destination, this->pars, premium);
     if(type == 1) return this->map.find_cheapest_path(origin, destination, this->pars, premium);
 }
