@@ -7,9 +7,18 @@ class History{
     Parcel *parcels_history;
 public:
     History();
-    int get_parcels_number(){return parcels_number;}
-    Parcel *get_parcels_history(){return parcels_history;}
-    void set_parcels_number(int n){this->parcels_number=n;}
-    void set_parcels_number(Parcel *parcels_history){this->parcels_history=parcels_history;}
+    History(const History &history);
+    History(int number, Parcel *parcels);
+    ~History();
+
+
+    int get_parcels_number ()const;
+    Parcel *get_parcels_history ()const;
+    int set_parcels_number(int n);
+    Parcel* set_parcels_number(Parcel *new_parcels_history);
+
+    void print();
+
+    void update();
 
 };

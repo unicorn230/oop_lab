@@ -1,4 +1,3 @@
-#include <fstream>
 #include <iostream>
 #include "./src/dbHandlers/db_handlers.h"
 #include <vector>
@@ -17,15 +16,16 @@ int main(){
     //коефіцієнт вартості для преміума: літак, корабель, поїзд, машина
     connection premium_cost = {0.7,0.8,1,1};
     // коефіцієнт вартості за одиницю об'єму та маси
-    double volume_cost =0.1;
-    double weight_cost =0.1;
+    connection volume_cost ={1,1,1,1};
+    connection weight_cost ={1,1,1,1};
 
-    // - ініціалізація
+
+//    // - ініціалізація
     Calculator calc(speed, cost, premium_speed, premium_cost, volume_cost, weight_cost);
 
     // виведемо список посилок з бд
-    Parcel *parcels = calc.get_history().get_parcels_history();
-
+    Parcel *parcels = calc.list_parcels();
+//
     for(int i=0; i<calc.get_history().get_parcels_number(); i++){
         cout<<"id: "<<parcels[i].get_id()<<endl;
         cout<<"sender: "<<parcels[i].get_sender()<<endl;
@@ -39,27 +39,27 @@ int main(){
         cout<<"weight: "<<parcels[i].get_weight()<<endl;
         cout<<"volume: "<<parcels[i].get_volume()<<endl;
         cout<<endl;
-    }
+   }
 
-    //знайдемо найшвидший та найдовший маршрути
-    // найшвидший
-    vector <path> f=calc.find_path(FAST, 1,3, 1);
-    //найдешевший
-    vector <path> c=calc.find_path(CHEAP,3,2,0);
+  //  знайдемо найшвидший та найдовший маршрути
+  //  найшвидший
+    vector <path> f=calc.find_path(FAST, 1,3, true);
+//    //найдешевший
+    vector <path> c=calc.find_path(CHEAP,3,2,false);
 
-    //виведемо один
+   // виведемо один
     string connections_types[4]={"plane", "ship", "train", "car"};
     for(int i=0; i<f.size(); i++){
         cout<<f.at(i).origin<<" -"<<connections_types[f.at(i).type_of_connection]<<"-> "<<f.at(i).destination<<endl;
     }
-    //вартість по плану преміум (потрібно ще домножити на об'єм та масу посилки)
-    cout<<calc.calculate_cost(f, 1);
-
-    //додамо посилку
+  //  вартість по плану преміум (потрібно ще домножити на об'єм та масу посилки)
+    cout<<calc.calculate_cost(f, true)<<endl;
+//
+//   // додамо посилку
     calc.add_parcel(250, 33,1,3,1,"Max", "John", CHEAP);
 
     // виведемо посилки
-    parcels = calc.get_history().get_parcels_history();
+    parcels = calc.list_parcels();
 
     for(int i=0; i<calc.get_history().get_parcels_number(); i++){
         cout<<"id: "<<parcels[i].get_id()<<endl;

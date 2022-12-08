@@ -1,13 +1,40 @@
 #include "../../headers/Map.h"
-#include "../../headers/DTOs.h"
-#include "../../headers/Parameters.h"
 #include "../dbHandlers/db_handlers.h"
+#include <iostream>
 
+using namespace std;
 
 Map::Map(){
-    number_of_deps = read_map_number();
-    map=read_map();
+    Map_db db=Map_db();
+    number_of_deps = db.read_number();
+    map=db.read_data();
 }
+
+Map::Map(int number, const connection* new_map){
+    this->number_of_deps = number;
+    for(int i=0; i<number; i++){
+        this->map[i]=new_map[i];
+    }
+}
+
+Map::Map(const Map &new_map){
+    this->number_of_deps = new_map.number_of_deps;
+    for(int i=0; i<new_map.number_of_deps; i++){
+        this->map[i]=new_map.map[i];
+    }
+}
+
+Map::~Map(){
+    delete[] map;
+}
+
+
+int Map::get_number_of_deps() const {return this->number_of_deps;}
+connection *Map::get_map() const{return this->map;}
+
+int Map::set_number_of_deps(int n){this->number_of_deps =n; return this->number_of_deps;}
+connection* Map::set_map(connection *new_map){this->map=new_map; return this->map;}
+
 
 double Map::get_specific_weight(int i, int j, int type) {
     switch(type){
@@ -34,26 +61,26 @@ vector <path> Map::find_fastest_path(int origin, int destination, Parameters par
     for(int i=0; i<number_of_deps; i++){
         for(int j=0; j<number_of_deps; j++){
 
-            if(map[counter].car/pars.get_speed(CAR, premium) <= map[counter].plane/pars.get_speed(PLANE, premium) &
-               map[counter].car/pars.get_speed(CAR, premium) <= map[counter].ship/pars.get_speed(SHIP, premium) &
-               map[counter].car/pars.get_speed(CAR, premium) <= map[counter].train/pars.get_speed(TRAIN, premium) &
-               map[counter].car/pars.get_speed(CAR, premium) !=0){
-                graph[i][j]=map[counter].car/pars.get_speed(CAR, premium);
+            if(map[counter].car/pars.get_final_speed(CAR, premium) <= map[counter].plane/pars.get_final_speed(PLANE, premium) &
+               map[counter].car/pars.get_final_speed(CAR, premium) <= map[counter].ship/pars.get_final_speed(SHIP, premium) &
+               map[counter].car/pars.get_final_speed(CAR, premium) <= map[counter].train/pars.get_final_speed(TRAIN, premium) &
+               map[counter].car/pars.get_final_speed(CAR, premium) !=0){
+                graph[i][j]=map[counter].car/pars.get_final_speed(CAR, premium);
                 con_graph[i][j]=CAR;
-            }else if(map[counter].plane/pars.get_speed(PLANE, premium) <= map[counter].car/pars.get_speed(CAR, premium) &
-                     map[counter].plane/pars.get_speed(PLANE, premium) <= map[counter].ship/pars.get_speed(SHIP, premium) &
-                     map[counter].plane/pars.get_speed(PLANE, premium) <= map[counter].train/pars.get_speed(TRAIN, premium) &
-                     map[counter].plane/pars.get_speed(PLANE, premium) !=0){
-                graph[i][j]=map[counter].plane/pars.get_speed(PLANE, premium);
+            }else if(map[counter].plane/pars.get_final_speed(PLANE, premium) <= map[counter].car/pars.get_final_speed(CAR, premium) &
+                     map[counter].plane/pars.get_final_speed(PLANE, premium) <= map[counter].ship/pars.get_final_speed(SHIP, premium) &
+                     map[counter].plane/pars.get_final_speed(PLANE, premium) <= map[counter].train/pars.get_final_speed(TRAIN, premium) &
+                     map[counter].plane/pars.get_final_speed(PLANE, premium) !=0){
+                graph[i][j]=map[counter].plane/pars.get_final_speed(PLANE, premium);
                 con_graph[i][j]=PLANE;
-            }else if(map[counter].ship/pars.get_speed(SHIP, premium) <= map[counter].car/pars.get_speed(CAR, premium) &
-                     map[counter].ship/pars.get_speed(SHIP, premium) <= map[counter].plane/pars.get_speed(PLANE, premium) &
-                     map[counter].ship/pars.get_speed(SHIP, premium) <= map[counter].train/pars.get_speed(TRAIN, premium) &
-                     map[counter].ship/pars.get_speed(SHIP, premium) !=0){
-                graph[i][j]=map[counter].ship/pars.get_speed(SHIP, premium);
+            }else if(map[counter].ship/pars.get_final_speed(SHIP, premium) <= map[counter].car/pars.get_final_speed(CAR, premium) &
+                     map[counter].ship/pars.get_final_speed(SHIP, premium) <= map[counter].plane/pars.get_final_speed(PLANE, premium) &
+                     map[counter].ship/pars.get_final_speed(SHIP, premium) <= map[counter].train/pars.get_final_speed(TRAIN, premium) &
+                     map[counter].ship/pars.get_final_speed(SHIP, premium) !=0){
+                graph[i][j]=map[counter].ship/pars.get_final_speed(SHIP, premium);
                 con_graph[i][j]=SHIP;
-            }else if(graph[i][j]=map[counter].train/pars.get_speed(TRAIN, premium) !=0){
-                graph[i][j]=map[counter].train/pars.get_speed(TRAIN, premium);
+            }else if(graph[i][j]=map[counter].train/pars.get_final_speed(TRAIN, premium) != 0){
+                graph[i][j]=map[counter].train/pars.get_final_speed(TRAIN, premium);
                 con_graph[i][j]=TRAIN;
             }else{
                 graph[i][j]=1000000000;
@@ -147,26 +174,26 @@ vector <path> Map::find_cheapest_path(int origin, int destination, Parameters pa
     for(int i=0; i<number_of_deps; i++){
         for(int j=0; j<number_of_deps; j++){
 
-            if(map[counter].car*pars.get_cost(CAR, premium) <= map[counter].plane*pars.get_cost(PLANE, premium) &
-               map[counter].car*pars.get_cost(CAR, premium) <= map[counter].ship*pars.get_cost(SHIP, premium) &
-               map[counter].car*pars.get_cost(CAR, premium) <= map[counter].train*pars.get_cost(TRAIN, premium)&
-               map[counter].car*pars.get_cost(CAR, premium)!=0){
-                graph[i][j]=map[counter].car*pars.get_cost(CAR, premium);
+            if(map[counter].car*pars.get_final_cost(CAR, premium) <= map[counter].plane*pars.get_final_cost(PLANE, premium) &
+               map[counter].car*pars.get_final_cost(CAR, premium) <= map[counter].ship*pars.get_final_cost(SHIP, premium) &
+               map[counter].car*pars.get_final_cost(CAR, premium) <= map[counter].train*pars.get_final_cost(TRAIN, premium)&
+               map[counter].car*pars.get_final_cost(CAR, premium)!=0){
+                graph[i][j]=map[counter].car*pars.get_final_cost(CAR, premium);
                 con_graph[i][j]=CAR;
-            }else if(map[counter].plane*pars.get_cost(PLANE, premium) <= map[counter].car*pars.get_cost(CAR, premium) &
-                     map[counter].plane*pars.get_cost(PLANE, premium) <= map[counter].ship*pars.get_cost(SHIP, premium) &
-                     map[counter].plane*pars.get_cost(PLANE, premium) <= map[counter].train*pars.get_cost(TRAIN, premium)&
-                     map[counter].plane*pars.get_cost(PLANE, premium)!=0){
-                graph[i][j]=map[counter].plane*pars.get_cost(PLANE, premium);
+            }else if(map[counter].plane*pars.get_final_cost(PLANE, premium) <= map[counter].car*pars.get_final_cost(CAR, premium) &
+                     map[counter].plane*pars.get_final_cost(PLANE, premium) <= map[counter].ship*pars.get_final_cost(SHIP, premium) &
+                     map[counter].plane*pars.get_final_cost(PLANE, premium) <= map[counter].train*pars.get_final_cost(TRAIN, premium)&
+                     map[counter].plane*pars.get_final_cost(PLANE, premium)!=0){
+                graph[i][j]=map[counter].plane*pars.get_final_cost(PLANE, premium);
                 con_graph[i][j]=PLANE;
-            }else if(map[counter].ship*pars.get_cost(SHIP, premium) <= map[counter].car*pars.get_cost(CAR, premium) &
-                     map[counter].ship*pars.get_cost(SHIP, premium) <= map[counter].plane*pars.get_cost(PLANE, premium) &
-                     map[counter].ship*pars.get_cost(SHIP, premium) <= map[counter].train*pars.get_cost(TRAIN, premium)&
-                     map[counter].ship*pars.get_cost(SHIP, premium)!=0){
-                graph[i][j]=map[counter].ship*pars.get_cost(SHIP, premium);
+            }else if(map[counter].ship*pars.get_final_cost(SHIP, premium) <= map[counter].car*pars.get_final_cost(CAR, premium) &
+                     map[counter].ship*pars.get_final_cost(SHIP, premium) <= map[counter].plane*pars.get_final_cost(PLANE, premium) &
+                     map[counter].ship*pars.get_final_cost(SHIP, premium) <= map[counter].train*pars.get_final_cost(TRAIN, premium)&
+                     map[counter].ship*pars.get_final_cost(SHIP, premium)!=0){
+                graph[i][j]=map[counter].ship*pars.get_final_cost(SHIP, premium);
                 con_graph[i][j]=SHIP;
-            }else if(map[counter].train*pars.get_cost(TRAIN, premium)!=0){
-                graph[i][j]=map[counter].train*pars.get_cost(TRAIN, premium);
+            }else if(map[counter].train*pars.get_final_cost(TRAIN, premium)!=0){
+                graph[i][j]=map[counter].train*pars.get_final_cost(TRAIN, premium);
                 con_graph[i][j]=TRAIN;
             }else {
                 graph[i][j]=1000000000;
@@ -244,4 +271,15 @@ vector <path> Map::find_cheapest_path(int origin, int destination, Parameters pa
 
     return cheapest;
 
+}
+
+void Map::print(){
+   int count=0;
+   for(int i=0; i<number_of_deps; i++){
+       for(int j=0; j<number_of_deps; j++){
+            cout<<map[count].plane<<','<<map[count].ship<<','<<map[count].train<<','<<map[count].car<<" ";
+            count++;
+       }
+       cout<<endl;
+   }
 }

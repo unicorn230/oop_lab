@@ -10,11 +10,19 @@ class Map{
     connection *map;
 public:
     Map();
-    int get_number_of_deps(){return number_of_deps;}
-    connection *get_map(){return map;}
+    Map(int number, const connection* new_map);
+    Map(const Map &new_map);
+    ~Map();
+
+    int get_number_of_deps() const;
+    connection *get_map() const;
+
+    int set_number_of_deps(int n);
+    connection* set_map(connection *map);
+
     double get_specific_weight(int i, int j, int type);
-    void set_number_of_deps(int n){this->number_of_deps =n;}
-    void set_mpa(connection *map){this->map=map;}
     vector <path> find_fastest_path(int o, int d, Parameters pars, bool premium);
     vector <path> find_cheapest_path(int o, int d, Parameters pars, bool premium);
+
+    void print();
 };

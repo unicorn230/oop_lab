@@ -23,5 +23,4 @@ struct path{
     int origin;
     int destination;
     Connections type_of_connection;
-
 };

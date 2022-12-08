@@ -18,29 +18,34 @@ class Parcel{
     string recipient;
 public:
     Parcel();
-    Parcel(int weight, int volume, Date sending_date, Date receiving_date, int price, int origin, int destination, int id, bool premium, string sender, string recepient);
-    int get_weight(){return weight;}
-    int get_volume(){return volume;}
-    Date get_sending_date(){return sending_date;}
-    Date get_receiving_date(){return receiving_date;}
-    int get_price(){return price;}
-    int get_origin(){return origin;}
-    int get_destination(){return destination;}
-    int get_id(){return id;}
-    bool get_premium(){return premium;}
-    string get_sender(){return sender;}
-    string get_recipient(){return recipient;}
-    void set_weight(int weight){this->weight =weight;}
-    void set_volume(int volume){this->volume=volume;}
-    void set_sending_date(Date sending_date){this->sending_date=sending_date;}
-    void set_receiving_date(Date receiving_date){this->receiving_date=receiving_date;}
-    void set_price(int price){this->price=price;}
-    void set_origin(int origin){this->origin=origin;}
-    void set_destination(int destination){this->destination=destination;}
-    void set_id(int id){this->id=id;}
-    void set_premium(bool premium){this->premium=premium;}
-    void set_sender(string sender){this->sender=sender;}
-    void set_recipient(string recipient){this->recipient=recipient;}
+    Parcel(int weight, int volume, const Date &sending_date, const Date &receiving_date, int price, int origin, int destination, int id, bool premium, string &sender, string &recipient);
+    Parcel(const Parcel &parcel);
+    ~Parcel()=default;
 
+    int get_weight() const;
+    int get_volume() const;
+    Date get_sending_date() const;
+    Date get_receiving_date() const;
+    int get_price() const;
+    int get_origin() const;
+    int get_destination() const;
+    int get_id() const;
+    bool get_premium() const;
+    string get_sender() const;
+    string get_recipient() const;
+
+    int set_weight(int new_weight);
+    int set_volume(int new_volume);
+    Date set_sending_date(Date &new_sending_date);
+    Date set_receiving_date(Date &new_receiving_date);
+    int set_price(int new_price);
+    int set_origin(int new_origin);
+    int set_destination(int new_destination);
+    int set_id(int new_id);
+    bool set_premium(bool new_premium);
+    string set_sender(string &new_sender);
+    string set_recipient(string &new_recipient);
+
+    void print();
 
 };
