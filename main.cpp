@@ -6,45 +6,77 @@
 using namespace std;
 
 int main(){
-    connection speed={1,4,3,2};
-    connection cost={4,2,1,3};
+    //задаємо початкові параметри:
+    //щвидкість: літак, корабель, поїзд, машина
+    connection speed={1,40,30,20};
+    //вартість: літак, корабель, поїзд, машина
+    connection cost={400,1,20,30};
+    //коефіцієнт швидкості для преміума: літак, корабель, поїзд, машина
     connection premium_speed = {1,1,1,1};
-    connection premium_cost = {0.7,0.8,1,1};
+    //коефіцієнт вартості для преміума: літак, корабель, поїзд, машина
+    connection premium_cost = {7,8,1,1};
+    // коефіцієнт вартості за одиницю об'єму та маси
     connection volume_cost ={1,1,1,1};
     connection weight_cost ={1,1,1,1};
 
+
+//    // - ініціалізація
     Calculator calc(speed, cost, premium_speed, premium_cost, volume_cost, weight_cost);
 
-    cout<<"parcels from db"<<endl<<endl;
+    // виведемо список посилок з бд
     Parcel *parcels = calc.list_parcels();
-    for(int i=0; i<calc.get_parcels_number(); i++){
-        parcels[i].print();
+//
+    for(int i=0; i<calc.get_history().get_parcels_number(); i++){
+        cout<<"id: "<<parcels[i].get_id()<<endl;
+        cout<<"sender: "<<parcels[i].get_sender()<<endl;
+        cout<<"recipient: "<<parcels[i].get_recipient()<<endl;
+        cout<<"origin: "<<parcels[i].get_origin()<<endl;
+        cout<<"destination: "<<parcels[i].get_destination()<<endl;
+        cout<<"price: "<<parcels[i].get_price()<<endl;
+        cout<<"premium: "<<parcels[i].get_premium()<<endl;
+        cout<<"sending date: "<<parcels[i].get_sending_date().get_day()<<" "<<parcels[i].get_sending_date().get_month()<<" "<<parcels[i].get_sending_date().get_year()<<endl;
+        cout<<"receiving date: "<<parcels[i].get_receiving_date().get_day()<<" "<<parcels[i].get_receiving_date().get_month()<<" "<<parcels[i].get_receiving_date().get_year()<<endl;
+        cout<<"weight: "<<parcels[i].get_weight()<<endl;
+        cout<<"volume: "<<parcels[i].get_volume()<<endl;
+        cout<<endl;
    }
-    cout<<endl;
-    cout<<"find fastest path between departments 1 and 3"<<endl;
-    vector <path> f=calc.find_path(FAST, 1,3, true);
+
+  //  знайдемо найшвидший та найдовший маршрути
+  //  найшвидший
+    vector <path> f=calc.find_path(FAST, 1,1,true);
+//    //найдешевший
+    vector <path> c=calc.find_path(CHEAP,1,3,true);
+
+   // виведемо один
     string connections_types[4]={"plane", "ship", "train", "car"};
     for(int i=0; i<f.size(); i++){
         cout<<f.at(i).origin<<" -"<<connections_types[f.at(i).type_of_connection]<<"-> "<<f.at(i).destination<<endl;
     }
     cout<<endl;
-    cout<<"find cheapest path between departments 3 and 2"<<endl;
-    vector <path> c=calc.find_path(CHEAP,3,2,false);
-    for(int i=0; i<f.size(); i++){
+    for(int i=0; i<c.size(); i++){
         cout<<c.at(i).origin<<" -"<<connections_types[c.at(i).type_of_connection]<<"-> "<<c.at(i).destination<<endl;
     }
-    cout<<endl;
-
-    cout<<"calculate cost of path f"<<endl;
+  //  вартість по плану преміум (потрібно ще домножити на об'єм та масу посилки)
     cout<<calc.calculate_cost(f, true)<<endl;
-    cout<<endl;
-    cout<<"add parcel to db"<<endl;
+//
+   // додамо посилку
     calc.add_parcel(250, 33,1,3,1,"Max", "John", CHEAP);
-    cout<<endl;
-    cout<<"new list of parcels"<<endl<<endl;
+
+    // виведемо посилки
     parcels = calc.list_parcels();
 
-    for(int i=0; i<calc.get_parcels_number(); i++){
-        parcels[i].print();
+    for(int i=0; i<calc.get_history().get_parcels_number(); i++){
+        cout<<"id: "<<parcels[i].get_id()<<endl;
+        cout<<"sender: "<<parcels[i].get_sender()<<endl;
+        cout<<"recipient: "<<parcels[i].get_recipient()<<endl;
+        cout<<"origin: "<<parcels[i].get_origin()<<endl;
+        cout<<"destination: "<<parcels[i].get_destination()<<endl;
+        cout<<"price: "<<parcels[i].get_price()<<endl;
+        cout<<"premium: "<<parcels[i].get_premium()<<endl;
+        cout<<"sending date: "<<parcels[i].get_sending_date().get_day()<<" "<<parcels[i].get_sending_date().get_month()<<" "<<parcels[i].get_sending_date().get_year()<<endl;
+        cout<<"receiving date: "<<parcels[i].get_receiving_date().get_day()<<" "<<parcels[i].get_receiving_date().get_month()<<" "<<parcels[i].get_receiving_date().get_year()<<endl;
+        cout<<"weight: "<<parcels[i].get_weight()<<endl;
+        cout<<"volume: "<<parcels[i].get_volume()<<endl;
+        cout<<endl;
     }
 }

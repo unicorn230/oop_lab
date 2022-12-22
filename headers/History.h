@@ -21,4 +21,6 @@ public:
 
     void update();
 
+    Parcel& operator [] (int);
+
 };

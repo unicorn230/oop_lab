@@ -32,7 +32,6 @@ public:
     double calculate_cost(vector<path> path, bool premium);
     double calculate_time(vector<path> path, bool premium);
     Parcel *list_parcels();
-    int get_parcels_number();
 
 
 };

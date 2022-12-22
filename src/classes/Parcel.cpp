@@ -88,3 +88,40 @@ void Parcel::print(){
     cout<<"volume: "<<this->volume<<endl;
     cout<<endl;
 }
+
+Parcel Parcel:: operator + (const Parcel& c) {
+    Parcel t(*this);
+    t.weight = t.weight + c.weight;
+    t.volume = t.volume + c.volume;
+    t.price = t.price + c.price;
+    return t;
+}
+int Parcel:: operator < (const Parcel& c) {   //за ціною
+    return (price<c.price);
+}
+int Parcel:: operator > (const Parcel& c) {   //за  ціною
+    return (price > c.price) ;
+}
+int Parcel:: operator == (const Parcel& c) {           //за вагою,об'ємом, ціною, початковим та кінцевим відділенням
+    int k = ((weight == c.weight) && (volume == c.volume) && (price == c.price) && (origin == c.origin) && (destination == c.destination));
+    return k;
+}
+int Parcel:: operator != (const Parcel& c) {
+    return !(*this==c);
+}
+Parcel& Parcel:: operator = (const Parcel& c) {
+    if (this != &c) {
+        weight = c.weight;
+        volume = c.volume;
+        price = c.price;
+        origin = c.origin;
+        destination = c.destination;
+        id = c.id;
+        premium = c.premium;
+        sender = c.sender;
+        recipient = c.recipient;
+        sending_date = c.sending_date;
+        receiving_date = c.receiving_date;
+    }return *this;
+}
+

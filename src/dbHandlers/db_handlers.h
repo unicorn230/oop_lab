@@ -5,8 +5,8 @@
 
 template <typename T> class Db{
 public:
-    virtual int read_number()=0;
-    virtual T* read_data()=0;
+    virtual int read_number();
+    virtual T* read_data();
 
 };
 

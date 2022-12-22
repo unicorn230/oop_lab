@@ -43,3 +43,5 @@ void History::print(){
         parcels_history[i].print();
     }
 }
+
+Parcel& History:: operator [] (int pos){ return parcels_history[pos-1] ; }

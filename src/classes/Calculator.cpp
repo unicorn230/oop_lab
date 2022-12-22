@@ -44,8 +44,8 @@ void Calculator::add_parcel(int weight, int volume, int origin, int destination,
 }
 
 vector <path> Calculator::find_path(type type, int origin, int destination, bool premium){
-    if(type == 0) return this->map.find_fastest_path(origin, destination, this->pars, premium);
-    else return this->map.find_cheapest_path(origin, destination, this->pars, premium);
+    if(type == FAST) return this->map.find_fastest_path(origin, destination, this->pars, premium);
+    if(type == CHEAP) return this->map.find_cheapest_path(origin, destination, this->pars, premium);
 }
 
 double Calculator::calculate_cost(vector<path> path, bool premium) {
@@ -70,8 +70,4 @@ double Calculator::calculate_time(vector<path> path, bool premium) {
 
 Parcel *Calculator::list_parcels(){
     return this->history.get_parcels_history();
-}
-
-int Calculator::get_parcels_number(){
-    return this->history.get_parcels_number();
 }

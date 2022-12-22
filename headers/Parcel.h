@@ -48,4 +48,11 @@ public:
 
     void print();
 
+    Parcel operator + (const Parcel&);
+    int operator < (const Parcel&);
+    int operator > (const Parcel&);
+    int operator == (const Parcel&);
+    int operator != (const Parcel&);
+    Parcel& operator = (const Parcel&);
+
 };

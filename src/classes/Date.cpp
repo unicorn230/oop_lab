@@ -28,3 +28,51 @@ int Date::set_year(int y){this->year=y; return this->year;}
 void Date::print(){
     cout<<this->day<<"."<<this->month<<"."<< this->month<<endl;
 }
+
+Date Date:: operator ++ (int i) {
+    Date t(*this);
+    if (day == 31) {
+        if (month == 12) { day = 1; month = 1; year++; return t; }
+        day = 1; month++;
+    }
+    else day++;
+    return t;
+}
+Date& Date :: operator ++ () {
+    if (day == 31) {
+        if (month == 12) { day = 1; month = 1; year++; return *this; }
+        day = 1; month++;
+    }
+    else day++;
+    return *this; }
+Date Date:: operator -- (int i) {
+    Date t(*this);
+    if (day == 1) {
+        if (month == 1) { day = 31; month = 12; year--; return *this; }
+        day = 31; month--;
+    }
+    else day--;
+    return t;
+}
+Date& Date :: operator -- () {
+    if (day == 1) {
+        if (month == 1) { day = 31; month = 12; year--; return *this; }
+        day = 31; month--;
+    }
+    else day--;
+    return *this; }
+ostream& operator <<(ostream& out,const Date& x) {
+    out << "Date:  " << x.get_day() << "." << x.get_month() <<"."<<x.get_year();
+    return out;
+}
+istream& operator >> (istream& in, Date& x) {
+    in >> x.day >> x.month >> x.year;
+    return in;
+}
+Date& Date :: operator = (const Date& c) {
+    if (this != &c) {
+        day = c.day;
+        month = c.month;
+        year = c.year;
+    }return *this;
+}

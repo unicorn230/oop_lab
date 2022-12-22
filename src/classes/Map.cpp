@@ -1,5 +1,6 @@
 #include "../../headers/Map.h"
 #include "../dbHandlers/db_handlers.h"
+#include <math.h>
 #include <iostream>
 
 using namespace std;
@@ -48,6 +49,7 @@ double Map::get_specific_weight(int i, int j, int type) {
 
 vector <path> Map::find_fastest_path(int origin, int destination, Parameters pars, bool premium) {
 
+
     double **graph= new double*[number_of_deps];
     for(int i = 0; i < number_of_deps; ++i)
         graph[i] = new double[number_of_deps];
@@ -65,22 +67,22 @@ vector <path> Map::find_fastest_path(int origin, int destination, Parameters par
                map[counter].car/pars.get_final_speed(CAR, premium) <= map[counter].ship/pars.get_final_speed(SHIP, premium) &
                map[counter].car/pars.get_final_speed(CAR, premium) <= map[counter].train/pars.get_final_speed(TRAIN, premium) &
                map[counter].car/pars.get_final_speed(CAR, premium) !=0){
-                graph[i][j]=map[counter].car/pars.get_final_speed(CAR, premium);
+                graph[i][j]=floor(map[counter].car/pars.get_final_speed(CAR, premium));
                 con_graph[i][j]=CAR;
             }else if(map[counter].plane/pars.get_final_speed(PLANE, premium) <= map[counter].car/pars.get_final_speed(CAR, premium) &
                      map[counter].plane/pars.get_final_speed(PLANE, premium) <= map[counter].ship/pars.get_final_speed(SHIP, premium) &
                      map[counter].plane/pars.get_final_speed(PLANE, premium) <= map[counter].train/pars.get_final_speed(TRAIN, premium) &
                      map[counter].plane/pars.get_final_speed(PLANE, premium) !=0){
-                graph[i][j]=map[counter].plane/pars.get_final_speed(PLANE, premium);
+                graph[i][j]=floor(map[counter].plane/pars.get_final_speed(PLANE, premium));
                 con_graph[i][j]=PLANE;
             }else if(map[counter].ship/pars.get_final_speed(SHIP, premium) <= map[counter].car/pars.get_final_speed(CAR, premium) &
                      map[counter].ship/pars.get_final_speed(SHIP, premium) <= map[counter].plane/pars.get_final_speed(PLANE, premium) &
                      map[counter].ship/pars.get_final_speed(SHIP, premium) <= map[counter].train/pars.get_final_speed(TRAIN, premium) &
                      map[counter].ship/pars.get_final_speed(SHIP, premium) !=0){
-                graph[i][j]=map[counter].ship/pars.get_final_speed(SHIP, premium);
+                graph[i][j]=floor(map[counter].ship/pars.get_final_speed(SHIP, premium));
                 con_graph[i][j]=SHIP;
             }else if(graph[i][j]=map[counter].train/pars.get_final_speed(TRAIN, premium) != 0){
-                graph[i][j]=map[counter].train/pars.get_final_speed(TRAIN, premium);
+                graph[i][j]=floor(map[counter].train/pars.get_final_speed(TRAIN, premium));
                 con_graph[i][j]=TRAIN;
             }else{
                 graph[i][j]=1000000000;
@@ -89,6 +91,14 @@ vector <path> Map::find_fastest_path(int origin, int destination, Parameters par
             counter++;
         }
     }
+
+
+//    for(int i=0; i<number_of_deps; i++){
+//        for(int j=0; j<number_of_deps; j++){
+//            cout<<graph[i][j]<<" ";
+//        }
+//        cout<<endl;
+//    }
 
     for (int i = 0; i<number_of_deps; i++)
     {
@@ -129,6 +139,10 @@ vector <path> Map::find_fastest_path(int origin, int destination, Parameters par
     int k = 1;
     int weight = d[end];
 
+    for(int i=0; i<number_of_deps; i++){
+        cout<<d[i]<<" ";
+    }
+
     while (end != begin_index)
     {
         for (int i = 0; i<number_of_deps; i++) {
@@ -146,9 +160,9 @@ vector <path> Map::find_fastest_path(int origin, int destination, Parameters par
 
     vector<path> fastest;
 
-    for (int i = k - 1; i >= 0; i--) {
-        if (i == k - 1) fastest.push_back({origin, ver[k - 1] - 1, con_graph[0][ver[k - 1] - 1]});
-        else fastest.push_back({ver[k - 1 - i] - 1, con_graph[0][ver[k - 1] - 1]});
+
+    for (int i = k - 1; i > 0; i--) {
+            fastest.push_back({ver[i], ver[i-1], con_graph[0][ver[k - 1] - 1]});
     }
 
     for(int i = 0; i < number_of_deps; ++i) {
@@ -201,6 +215,15 @@ vector <path> Map::find_cheapest_path(int origin, int destination, Parameters pa
             }
             counter++;
         }
+    }
+
+
+    cout<<endl;
+    for(int i=0; i<number_of_deps; i++){
+        for(int j=0; j<number_of_deps; j++){
+            cout<<graph[i][j]<<" ";
+        }
+        cout<<endl;
     }
 
     for (int i = 0; i<number_of_deps; i++)
@@ -259,9 +282,8 @@ vector <path> Map::find_cheapest_path(int origin, int destination, Parameters pa
 
     vector <path> cheapest;
 
-    for (int i = k - 1; i >= 0; i--) {
-        if (i == k - 1) cheapest.push_back({origin, ver[k - 1] - 1, con_graph[0][ver[k - 1] - 1]});
-        else cheapest.push_back({ver[k - 1 - i] - 1, con_graph[0][ver[k - 1] - 1]});
+    for (int i = k - 1; i > 0; i--) {
+        cheapest.push_back({ver[i], ver[i-1], con_graph[0][ver[k - 1] - 1]});
     }
 
     for(int i = 0; i < number_of_deps; ++i) {

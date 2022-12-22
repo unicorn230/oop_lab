@@ -1,4 +1,7 @@
 #pragma once
+#include <iostream>
+
+using namespace std;
 
 class Date{
     int day;
@@ -19,5 +22,13 @@ public:
     int set_year(int y);
 
     void print();
+
+    Date operator ++ (int);
+    Date& operator ++();
+    Date operator -- (int);
+    Date& operator --();
+    Date& operator = (const Date&);
+    friend ostream& operator <<(ostream&,const Date&);
+    friend istream& operator >>(istream&, Date&);
 
 };
