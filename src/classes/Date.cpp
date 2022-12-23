@@ -1,5 +1,7 @@
 #include "../../headers/Date.h"
 #include <iostream>
+#include <tuple>
+
 
 using namespace std;
 
@@ -10,6 +12,21 @@ Date::Date(int d, int m, int y) {
 }
 
 Date::Date(){day=0;month=0;year=0;}
+
+Date::Date(string date){
+
+    size_t dot = date.find(".");
+    this->day = stoi(date.substr(0, dot));
+    date.erase(0, dot + 1);
+
+    dot = date.find(".");
+    this->month = stoi(date.substr(0, dot));
+    date.erase(0, dot + 1);
+
+    dot = date.find(".");
+    this->year = stoi(date.substr(0, dot));
+    date.erase(0, dot + 1);
+}
 
 Date::Date(const Date &date){
     this->day = date.day;
@@ -76,3 +93,6 @@ Date& Date :: operator = (const Date& c) {
         year = c.year;
     }return *this;
 }
+
+Date ::operator string() const { return to_string(this->day) + "." + to_string(this->month) + "." + to_string(this->year); }
+

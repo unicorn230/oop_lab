@@ -8,6 +8,7 @@ class History{
 public:
     History();
     History(const History &history);
+    History(int);
     History(int number, Parcel *parcels);
     ~History();
 

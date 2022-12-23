@@ -7,6 +7,11 @@ History::History(){
     this->parcels_history = db.read_data();
 }
 
+History::History(int i):parcels_number(i){
+    parcels_history = new Parcel [parcels_number];
+}
+
+
 History::History(int number, Parcel *parcels): parcels_number(number){
     this->parcels_history = new Parcel[number];
     for(int i=0; i<number; i++){

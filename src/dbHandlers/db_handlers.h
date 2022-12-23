@@ -7,6 +7,7 @@ template <typename T> class Db{
 public:
     virtual int read_number();
     virtual T* read_data();
+    virtual void get_type();
 
 };
 
@@ -15,6 +16,7 @@ public:
     Map_db()=default;
     int read_number() override;
     connection* read_data() override;
+    void get_type(){cout<<"Map"<<endl;}
 };
 
 class History_db :Db<Parcel>{
@@ -23,6 +25,9 @@ public:
     int read_number() override;
     Parcel* read_data() override;
     void save_data(int weight, int volume, Date sending_date, Date receiving_date, int price, int origin, int destination, bool premium, string sender, string recipient);
+    void get_type(){cout<<"History"<<endl;}
+
+
 };
 
 
